@@ -1,0 +1,23 @@
+# A recipient's doc. The token is the credential, so access is open and the
+# controller 404s anything that isn't an active link.
+ar_docs.doc:
+  path: '/doc/{token}'
+  methods: [GET]
+  defaults:
+    _controller: 'Drupal\ar_docs\Controller\DocController::view'
+  requirements:
+    _access: 'TRUE'
+    token: '[A-Za-z0-9_-]{43}'
+  options:
+    no_cache: TRUE
+
+ar_docs.save:
+  path: '/doc/{token}/answers'
+  methods: [POST]
+  defaults:
+    _controller: 'Drupal\ar_docs\Controller\DocController::save'
+  requirements:
+    _access: 'TRUE'
+    token: '[A-Za-z0-9_-]{43}'
+  options:
+    no_cache: TRUE

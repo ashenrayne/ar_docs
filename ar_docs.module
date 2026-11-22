@@ -1,0 +1,23 @@
+<?php
+
+/**
+ * @file
+ * The Finished email. A procedural hook so the module runs on 10.3 as well as 11.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Implements hook_mail().
+ */
+function ar_docs_mail(string $key, array &$message, array $params): void {
+  if ($key !== 'finished') {
+    return;
+  }
+  $who = $params['link']['label'];
+  $doc = $params['doc']['title'] ?? $params['link']['doc'];
+  $message['subject'] = t('@who finished @doc', ['@who' => $who, '@doc' => $doc]);
+  $message['body'][] = t('@who pressed I’m finished on @doc.', ['@who' => $who, '@doc' => $doc]);
+  $message['body'][] = t('Their answers: drush ar-docs:answers @slug --recipient="@who"', ['@slug' => $params['link']['doc'], '@who' => $who]);
+  $message['body'][] = t('In the doc, to open locally: drush ar-docs:render @slug --recipient="@who" > answers.html', ['@slug' => $params['link']['doc'], '@who' => $who]);
+}

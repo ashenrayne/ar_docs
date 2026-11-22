@@ -1,12 +1,40 @@
 # AR Docs
 
 Hosts Ashen Rayne client docs (the self-contained HTML the client-report skill builds) at
-private links on a client's Drupal site. Each recipient answers in any browser, the answers
-save to the site as they go, and pressing **Finished** emails us. No attachments, nothing to save.
+private links on a client's Drupal site. Each recipient answers in any browser and presses
+**Save**. The answers are stored on the site, and the first save with every question answered
+(when Save reads **Finish**) emails support@ashenrayne.com. No attachments, no files to send back.
 
 ```
 composer require ashenrayne/ar_docs
 drush en ar_docs
 ```
 
-Then go to **Content → Docs**, upload a doc, add a recipient per person, and send each one their link.
+Everything on our side is drush. Pass the site's public address with `--uri` so the printed
+links are the ones to send.
+
+| Command | Does |
+|---|---|
+| `cat doc.html \| drush ar-docs:add <slug> - --recipient=Bud --recipient=Daryl` | Store a doc, print a link per recipient |
+| `drush ar-docs:list [slug]` | Each doc's recipients: answers, last saved, finished, active |
+| `drush ar-docs:answers <slug> [--recipient=Bud] [--item='q-*'] [--format=json]` | Answers, with each item's question text |
+| `drush ar-docs:render <slug> --recipient=Bud > bud.html` | The doc with their answers in it, read-only, to open locally |
+| `drush ar-docs:update <slug> -` | Swap in a rebuilt doc; answers are kept, matched by element id |
+| `drush ar-docs:link <slug> <recipient>` | Another recipient's link |
+| `drush ar-docs:revoke <slug> <recipient> [--restore]` | Stop (or reopen) a link; answers stay |
+| `drush ar-docs:delete <slug>` | Remove a doc, its links and answers when the round is done |
+
+## How it works
+
+- Docs and links live in the key-value store: no entities and no schema. A link's token
+  (32 random bytes) is the only credential.
+- The doc is served as built, with a small runtime injected ahead of its own script. The
+  runtime puts saved answers into the markup, then sends the markup's answers when Save is
+  pressed. Any client-report doc works unchanged, because it already keeps its answers in
+  markup.
+- Doc pages and saves are `no-store`, `noindex` and `no-referrer`. A late response listener
+  restores the doc exactly as served, so site-wide rewriting (email cloaking, phone links,
+  tag injection) can't change it.
+- Saves are same-site only, size-capped and rate-limited.
+
+Finished emails go to `ar_docs.settings:notify` (default support@ashenrayne.com).

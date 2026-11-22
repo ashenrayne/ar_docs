@@ -1,7 +1,7 @@
 {
     "name": "ashenrayne/ar_docs",
     "description": "Hosts Ashen Rayne client docs at private links; recipients answer in any browser and the answers save to the site.",
-    "type": "drupal-custom-module",
+    "type": "drupal-module",
     "license": "GPL-2.0-or-later",
     "require": {
         "drupal/core": "^10.3 || ^11"

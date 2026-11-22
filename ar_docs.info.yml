@@ -1,0 +1,5 @@
+name: 'AR Docs'
+type: module
+description: 'Hosts Ashen Rayne client docs (the self-contained HTML the client-report skill builds) at private links. Each recipient answers in any browser; answers save to the site as they go, and pressing Finished emails us.'
+package: 'Ashen Rayne'
+core_version_requirement: ^10.3 || ^11

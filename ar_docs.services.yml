@@ -1,0 +1,11 @@
+services:
+  ar_docs.store:
+    class: Drupal\ar_docs\DocStore
+    arguments: ['@keyvalue', '@datetime.time']
+  ar_docs.assembler:
+    class: Drupal\ar_docs\DocAssembler
+    arguments: ['@extension.list.module']
+  ar_docs.seal:
+    class: Drupal\ar_docs\EventSubscriber\SealSubscriber
+    tags:
+      - { name: event_subscriber }

@@ -1,0 +1,7 @@
+ar_docs.settings:
+  type: config_object
+  label: 'Client docs settings'
+  mapping:
+    notify:
+      type: email
+      label: 'Who to email when a recipient finishes'
