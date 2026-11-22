@@ -17,7 +17,7 @@ function ar_docs_mail(string $key, array &$message, array $params): void {
   $who = $params['link']['label'];
   $doc = $params['doc']['title'] ?? $params['link']['doc'];
   $message['subject'] = t('@who finished @doc', ['@who' => $who, '@doc' => $doc]);
-  $message['body'][] = t('@who pressed I’m finished on @doc.', ['@who' => $who, '@doc' => $doc]);
+  $message['body'][] = t('@who pressed Finish on @doc: every question has an answer.', ['@who' => $who, '@doc' => $doc]);
   $message['body'][] = t('Their answers: drush ar-docs:answers @slug --recipient="@who"', ['@slug' => $params['link']['doc'], '@who' => $who]);
   $message['body'][] = t('In the doc, to open locally: drush ar-docs:render @slug --recipient="@who" > answers.html', ['@slug' => $params['link']['doc'], '@who' => $who]);
 }
