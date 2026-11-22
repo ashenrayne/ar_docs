@@ -50,19 +50,20 @@ final class ArDocsCommands extends DrushCommands {
   #[CLI\Option(name: 'title', description: 'For us, in lists and the Finished email. Defaults to the doc’s <title>.')]
   #[CLI\Option(name: 'recipient', description: 'Who gets a link. Repeat or comma-separate for several.')]
   #[CLI\Usage(name: 'cat review.html | drush ar-docs:add dmx-locations-bud - --recipient=Bud', description: 'Pipe a doc in and issue Bud a link.')]
-  #[CLI\FieldLabels(labels: ['recipient' => 'Recipient', 'url' => 'Link to send'])]
-  public function add(string $slug, string $file = '-', array $options = ['title' => NULL, 'recipient' => []]): RowsOfFields {
+  public function add(string $slug, string $file = '-', array $options = ['title' => NULL, 'recipient' => []]): string {
     if ($this->store->getDoc($slug)) {
       throw new \RuntimeException("\"$slug\" already exists. ar-docs:update replaces its HTML.");
     }
     $html = $this->read($file);
     $this->store->putDoc($slug, $options['title'] ?: $this->title($html, $slug), $html);
-    $rows = [];
+    // One plain line per link: a table wraps a long link across lines, and a
+    // half-copied link is the one that gets sent.
+    $lines = [];
     foreach ($this->names($options['recipient']) as $name) {
-      $rows[] = ['recipient' => $name, 'url' => $this->url($this->store->addLink($slug, $name))];
+      $lines[] = $name . ': ' . $this->url($this->store->addLink($slug, $name));
     }
     $this->logger()->success("Added $slug.");
-    return new RowsOfFields($rows);
+    return implode("\n", $lines);
   }
 
   /**

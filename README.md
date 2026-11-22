@@ -15,7 +15,7 @@ links are the ones to send.
 
 | Command | Does |
 |---|---|
-| `cat doc.html \| drush ar-docs:add <slug> - --recipient=Bud --recipient=Daryl` | Store a doc, print a link per recipient |
+| `cat doc.html \| drush ar-docs:add <slug> - --recipient=Bud --recipient=Daryl` | Store a doc, print each recipient’s link on its own line |
 | `drush ar-docs:list [slug]` | Each doc's recipients: answers, last saved, finished, active |
 | `drush ar-docs:answers <slug> [--recipient=Bud] [--item='q-*'] [--format=json]` | Answers, with each item's question text |
 | `drush ar-docs:render <slug> --recipient=Bud > bud.html` | The doc with their answers in it, read-only, to open locally |
