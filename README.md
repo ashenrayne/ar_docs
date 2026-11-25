@@ -37,4 +37,10 @@ links are the ones to send.
   tag injection) can't change it.
 - Saves are same-site only, size-capped and rate-limited.
 
+- **Open docs and reviews.** An open doc shows how much is answered, and Save becomes **Finish**
+  at 100%. A review (a doc that ships with every answer already filled in, or one the recipient
+  already finished) shows no percentage: a change makes it **Save**, a save makes it **Finish**,
+  and Finish makes it **Finished**. A change saved after finishing reopens the doc on the site,
+  so the next Finish emails again.
+
 Finished emails go to `ar_docs.settings:notify` (default support@ashenrayne.com).

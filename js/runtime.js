@@ -91,6 +91,22 @@
     return out;
   }
 
+  // A review: a doc that ships with every question already answered (a record
+  // to correct, not a form to fill), or one the recipient already finished and
+  // is going back over. A percentage measures nothing there, so Save, Finish
+  // and Finished take turns instead; an open doc keeps its tally. Decided from
+  // the doc as built, before saved answers go in.
+  var review = !!C.finished || (function () {
+    var items = [].filter.call(document.querySelectorAll('.yn, .choice, .ask'), function (el) {
+      var g = el.closest('[data-gate]');
+      return !g || !g.hidden;
+    });
+    return items.length > 0 && items.every(function (el) {
+      if (el.classList.contains('yn') || el.classList.contains('choice')) return !!el.getAttribute('data-answer');
+      return [].some.call(el.querySelectorAll('.answer'), function (f) { return f.value.trim() !== ''; });
+    });
+  })();
+
   // The DOM is parsed up to this script, which sits just ahead of the doc's
   // own; everything the doc's script will read is already here.
   apply(C.answers || {});
@@ -114,7 +130,12 @@
     e.preventDefault();
     e.stopImmediatePropagation();
     if (busy) return;
-    if (!finished && complete()) store(true);
+    // A review saves first, then finishes on the next press.
+    if (review) {
+      if (dirty()) store(false);
+      else if (!finished) store(true);
+    }
+    else if (!finished && complete()) store(true);
     else if (dirty()) store(false);
   }, true);
 
@@ -178,7 +199,21 @@
       save.appendChild(label);
       save.appendChild(tally);
     }
-    var p = progress(), d = dirty(), ready = !finished && p.total > 0 && p.done === p.total;
+    var p = progress(), d = dirty();
+    if (review) {
+      // Save (yellow) → Finish (yellow) → Finished (green); a change starts
+      // it over. Tracking what's done is the reviewer's own, so no tally.
+      var step = d ? 'Save' : finished ? 'Finished' : 'Finish';
+      save.classList.remove('ar-complete');
+      save.classList.toggle('dirty', step !== 'Finished');
+      save.setAttribute('aria-label', step);
+      setText(label, step);
+      setText(tally, '');
+      tally.hidden = true;
+      paintGroups();
+      return;
+    }
+    var ready = !finished && p.total > 0 && p.done === p.total;
     var pct = p.total ? Math.floor(100 * p.done / p.total) : 0;
     var text = ready ? 'Finish' : d ? 'Save' : finished ? 'Finished' : 'Saved';
     save.classList.toggle('ar-complete', ready);
@@ -235,7 +270,8 @@
       return r.json();
     }).then(function (res) {
       last = snapshot;
-      if (res.finished) finished = true;
+      // The site's word: a change saved after finishing reopens the doc.
+      finished = !!res.finished;
     }).catch(function () {
       failed = true;
     }).then(function () {
@@ -264,7 +300,9 @@
     if (note) {
       note.textContent = 'Press Save in the bar at the top to keep your answers; you can come back and carry on any time.';
       var more = document.createElement('p');
-      more.textContent = 'At 100% Save becomes Finish: press it to let us know you’re done.';
+      more.textContent = review
+        ? 'Once saved, Save becomes Finish: press it to let us know you’re done.'
+        : 'At 100% Save becomes Finish: press it to let us know you’re done.';
       note.insertAdjacentElement('afterend', more);
     }
 

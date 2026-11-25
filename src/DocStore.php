@@ -133,6 +133,11 @@ class DocStore {
   public function saveAnswers(string $token, array $answers, bool $finished = FALSE): bool {
     $link = $this->getLink($token);
     $now = $this->time->getRequestTime();
+    // A change saved after finishing reopens the doc: the recipient is going
+    // back through it, and their next Finish is news again.
+    if (!$finished && !empty($link['finished']) && ($link['answers'] ?? []) != $answers) {
+      unset($link['finished']);
+    }
     $link['answers'] = $answers;
     $link['saved'] = $now;
     $first = $finished && empty($link['finished']);
